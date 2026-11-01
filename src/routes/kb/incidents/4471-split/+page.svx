@@ -1,0 +1,54 @@
+---
+layout: runbook
+title: '#4471 split · two bugs, not one'
+owner: support desk
+status: draft
+reviewed: 2026-11-01
+signature: v1.eyJzdWIiOiI1MjY4IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTM1NTg3MzcsImV4cCI6MTc5MzY0NTEzN30.7PhgFHm0U2fpFXnaCLlDvR4He0CNTw4jb3RGZI-3pk0
+---
+
+<script>
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) was marked known as one bug. It holds **two**. The export has 427
+rows, but 15 are repeats of the same report id, so the ticket really holds **412 reports**.
+
+<Callout>
+379 reports are the parser bug (#4471 is right for them). 33 reports are a different bug, the
+booking form hint, and they have no ticket of their own.
+</Callout>
+
+## The two problems
+
+<CauseTable ticket={4471} />
+
+| problem | reports | tenants | seen | ticket |
+| --- | --- | --- | --- | --- |
+| **parser**: the shared parser reads every date month first, so day-first tenants get flipped dates | 379 | 11 | 2026-04-01 → 2026-10-04 | stays in #4471 |
+| **hint**: booking-v3 prints `MM/DD/YYYY` under the date field. Day-first people type what the hint says, and the form reads it their way | 33 | 3 (copper.studio, alder.physio, pale.harbour) | 2026-04-17 → 2026-09-22 | needs its own ticket |
+
+Five of the 379 parser reports read as a one-day move (R-41202, R-41209, R-41236, R-41344,
+R-41620). They are counted under `parser`, where their tenant files them.
+
+## Why they were merged together
+
+Intake tags each report from the reporter's **browser** locale. That is a guess. The cause
+depends on the **tenant's** locale and booking form. The two disagree:
+
+- 23 parser-cause reports were tagged `hint`.
+- 15 hint-cause reports were tagged `parser`.
+
+Reading the tag gives the wrong cause for 38 of 412 reports. The merge rule
+([decision 0001](/kb/decisions/0001-dedupe-by-subject)) never reads the body or the tenant at
+all: it matches on subject line.
+
+## What to do
+
+1. Keep #4471 for the parser bug, with a count of 379.
+2. Open a ticket for the booking-v3 hint bug, with a count of 33.
+3. Triage by tenant locale and form, not by intake tag or subject line.
+
+<RenderStamp {signature} />

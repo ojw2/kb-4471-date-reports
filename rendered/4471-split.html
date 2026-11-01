@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>#4471 split · two bugs, not one</title>
+<style>body{font:16px/1.5 system-ui;max-width:48rem;margin:2rem auto;padding:0 1rem}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:.4rem;text-align:left;vertical-align:top}.wrong td{background:#fff3cd}.callout{border-left:4px solid #c60;padding:.5rem 1rem;background:#fafafa}.stamp{font:.85rem monospace;color:#555}.stamp b{color:#06c}</style></head>
+<body><h1>#4471 split · two bugs, not one</h1>
+<p><small>owner: support desk · status: draft · reviewed: 2026-11-01</small></p>
+<p><a href="/kb/incidents/4471">#4471</a> was marked known as one bug. It holds <b>two</b>. The export has 427 rows, but 15 are repeats of the same report id, so the ticket really holds <b>412 reports</b>.</p>
+<div class="callout">379 reports are the parser bug (#4471 is right for them). 33 reports are a different bug, the booking form hint, and they have no ticket of their own.</div>
+<h2>The two problems</h2>
+<p><b>412</b> reports merged into #4471 · <b>2</b> causes</p>
+<table><thead><tr><th>cause</th><th>reports</th><th>tagged as</th><th>tenants</th><th>seen</th><th></th></tr></thead><tbody>
+<tr><td><code>parser</code></td><td>379</td><td>parser ×356 · hint ×23</td><td>11</td><td>2026-04-01 → 2026-10-04</td><td>#4471</td></tr>
+<tr class="wrong"><td><code>hint</code></td><td>33</td><td>hint ×18 · parser ×15</td><td>3</td><td>2026-04-17 → 2026-09-22</td><td><b>not this ticket — no ticket of its own</b></td></tr></tbody></table>
+<p><small>5 reports read as a one-day move; filed under <code>parser</code> by tenant.</small></p>
+<table><thead><tr><th>problem</th><th>reports</th><th>tenants</th><th>seen</th><th>ticket</th></tr></thead><tbody>
+<tr><td><b>parser</b>: the shared parser reads every date month first, so day-first tenants get flipped dates</td><td>379</td><td>11</td><td>2026-04-01 → 2026-10-04</td><td>stays in #4471</td></tr>
+<tr><td><b>hint</b>: booking-v3 prints <code>MM/DD/YYYY</code> under the date field. Day-first people type what the hint says, and the form reads it their way</td><td>33</td><td>3 (copper.studio, alder.physio, pale.harbour)</td><td>2026-04-17 → 2026-09-22</td><td>needs its own ticket</td></tr></tbody></table>
+<p>Five of the 379 parser reports read as a one-day move (R-41202, R-41209, R-41236, R-41344, R-41620). They are counted under <code>parser</code>, where their tenant files them.</p>
+<h2>Why they were merged together</h2>
+<p>Intake tags each report from the reporter's <b>browser</b> locale. That is a guess. The cause depends on the <b>tenant's</b> locale and booking form. The two disagree:</p>
+<ul><li>23 parser-cause reports were tagged <code>hint</code>.</li><li>15 hint-cause reports were tagged <code>parser</code>.</li></ul>
+<p>Reading the tag gives the wrong cause for 38 of 412 reports. The merge rule (<a href="/kb/decisions/0001-dedupe-by-subject">decision 0001</a>) never reads the body or the tenant at all: it matches on subject line.</p>
+<h2>What to do</h2>
+<ol><li>Keep #4471 for the parser bug, with a count of 379.</li><li>Open a ticket for the booking-v3 hint bug, with a count of 33.</li><li>Triage by tenant locale and form, not by intake tag or subject line.</li></ol>
+<p class="stamp">desk ref <b>DR-SPSW-JRZQ</b></p></body></html>
